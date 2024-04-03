@@ -1,35 +1,45 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const subtaskSchema = new mongoose.Schema({
+const subtaskSchema = new mongoose.Schema(
+  {
     title: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     description: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     completed: {
-        type: Boolean,
-        default: false
-    }
-    
-})
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  }
+);
 
-const taskSchema = new mongoose.Schema({
+const taskSchema = new mongoose.Schema(
+  {
     title: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     description: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
-    subtasks: [subtaskSchema],
-    creationDate: {
-        type: Date,
-        default: Date.now
+    subtasks: {
+      type: [subtaskSchema],
+      default: []
     }
-});
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  }
+);
 
-module.exports = mongoose.model('Task', taskSchema)
+module.exports = mongoose.model("Task", taskSchema);
