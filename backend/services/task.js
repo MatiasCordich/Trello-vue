@@ -1,36 +1,89 @@
-const TaskModel = require('../models/Task')
+const TaskModel = require("../models/Task");
 
 // Obtener todas las tareas
-const getAllTasks = async () => {
-  const response = await TaskModel.find({})
-
-  return response
-}
+const getAll = async () => {
+  try {
+    const response = await TaskModel.find({});
+    return response;
+  } catch (error) {
+    throw new Error("Error al obtener todas las tareas: " + error.message);
+  }
+};
 
 // Obtener tarea por id
-const getOneTask = async (id) => {
-
-  const response = await TaskModel.findOne({_id: id})
-
-  return response
-}
-// Crear una nueva tarea 
-const insertTask = async (task) => {
-  const response = await TaskModel.create(task)
-  return response
-}
+const getOne = async (id) => {
+  try {
+    const response = await TaskModel.findOne({ _id: id });
+    return response;
+  } catch (error) {
+    throw new Error("Error al obtener la tarea: " + error.message);
+  }
+};
+// Crear una nueva tarea
+const insert = async (taskData) => {
+  try {
+    const response = await TaskModel.create(taskData);
+    return response.save();
+  } catch (error) {
+    throw new Error("Error al insertar la tarea: " + error.message);
+  }
+};
 
 // Editar tarea
-const updateTask = async (data, id) => {
-  const response = await TaskModel.findByIdAndUpdate({_id: id}, data, {new: true})
+const update = async (id, newData) => {
+  try {
+    if (newData.subtasks && newData.subtasks.length > 0) {
+      const isExist = await TaskModel.findById(id);
+      if (!isExist) {
+        throw new Error("Tarea no encontrada");
+      }
 
-  return response
-}
+      newData.subtasks.forEach((newSubtask) => {
+        isExist.subtasks.push(newSubtask);
+      });
+
+      const response = await isExist.save();
+
+      return response;
+    } else {
+      const response = await TaskModel.findByIdAndUpdate({ _id: id }, newData, {
+        new: true,
+      });
+
+      return response;
+    }
+  } catch (error) {
+    throw new Error("Error al actualizar la tarea: " + error.message);
+  }
+};
+
 // Eliminar tarea
-const deleteTask = async (id) => {
-  const response = await TaskModel.findByIdAndDelete({_id: id})
+const deleteT = async (id, subtaskID) => {
+  try {
+    const isExist = await TaskModel.findById(id);
 
-  return response
-}
+    if (!isExist) {
+      throw new Error("Tarea no encontrada");
+    }
 
-module.exports = {getAllTasks, getOneTask, insertTask, updateTask, deleteTask}
+    if (subtaskID) {
+      isExist.subtasks.pull({ _id: subtaskID });
+      await isExist.save();
+      return "Subtarea eliminada correctamente";
+    }
+
+    // Si no se proporciona el ID de la subtarea, eliminar la tarea
+    await TaskModel.findByIdAndDelete({ _id: id });
+    return "Tarea eliminada correctamente";
+  } catch (error) {
+    throw new Error("Error al obtener todas las tareas: " + error.message);
+  }
+};
+
+module.exports = {
+  getAll,
+  getOne,
+  insert,
+  update,
+  deleteT,
+};
