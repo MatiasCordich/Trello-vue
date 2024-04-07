@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 const connectDB = require('./db/db');
-const taskRouter = require('./routes/task.routes')
+const authRotuer = require('./routes/auth.routes')
 require('dotenv').config()
 
 const app = express()
@@ -18,17 +18,12 @@ app.use(morgan('dev'))
 // Conexion a la DB
 connectDB()
 
-
-
-
 app.get('/', (req, res) => {
   res.json({msg: "Api conectada"})
 })
 
 //Rutas
-app.use('/api/tasks',taskRouter)
-
-
+app.use('/auth', authRotuer)
 
 
 // Inciar servidor
